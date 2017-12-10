@@ -6,6 +6,7 @@
 package jdbcexample;
 
 import java.sql.*;
+import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -121,6 +122,78 @@ public class mysqlJDBCconnection {
         if (myConn != null) {
             myConn.close();
         }
+    }
+
+    public void transactionDemo() {
+
+        Connection myConn = null;
+        Statement myStmt = null;
+        Statement myStmt1 = null;
+
+        ResultSet myRs = null;
+
+        try {
+            // 1. Get a connection to database
+            myConn = DriverManager.getConnection("jdbc:mysql://localhost:3306/US_LOCATIONS", "root", "PS");
+
+            // Turn off auto commit
+            myConn.setAutoCommit(false);
+            //show number of element
+            myStmt = myConn.createStatement();
+            myRs = myStmt.executeQuery("SELECT count(*) as count FROM US_LOCATIONS.US_CITIES;");
+            while (myRs.next()) {
+                System.out.println("Number of rows :" + myRs.getString("count"));
+            }
+
+            //delete0 element
+            myStmt1 = myConn.createStatement();
+            int rowsAffected = myStmt1.executeUpdate("DELETE FROM US_LOCATIONS.US_CITIES WHERE id=3;");
+            //myRs = myStmt1.executeQuery("SELECT count(*) as count FROM US_LOCATIONS.US_CITIES;");
+
+            boolean ok = askUserIfOkToSave();
+
+            if (ok) {
+
+                // store in database
+                myConn.commit();
+                System.out.println("\n>> Transaction COMMITTED.\n");
+            } else {
+
+                // discard
+                myConn.rollback();
+                System.out.println("\n>> Transaction ROLLED BACK.\n");
+
+            }
+
+            //show number of element
+            myStmt = myConn.createStatement();
+            myRs = myStmt.executeQuery("SELECT count(*) as count FROM US_LOCATIONS.US_CITIES;");
+            while (myRs.next()) {
+                System.out.println("Number of rows :" + myRs.getString("count"));
+            }
+
+        } catch (Exception exc) {
+
+            exc.printStackTrace();
+        } finally {
+            try {
+                close(myConn, myStmt);
+            } catch (SQLException ex) {
+                Logger.getLogger(mysqlJDBCconnection.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+
+    }
+
+    private static boolean askUserIfOkToSave() {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("Is it okay to save?  yes/no: ");
+        String input = scanner.nextLine();
+
+        scanner.close();
+
+        return input.equalsIgnoreCase("yes");
     }
 
 }

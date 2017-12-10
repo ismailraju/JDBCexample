@@ -22,7 +22,8 @@ public class JDBCexample {
         mysqlJDBCconnection mysqlJDBCconnectionObject = new mysqlJDBCconnection();
         //mysqlJDBCconnectionObject.connectionTest();
         //mysqlJDBCconnectionObject.prepareStatment();
-        mysqlJDBCconnectionObject.callMysqlStoreProcedure();
+        //mysqlJDBCconnectionObject.callMysqlStoreProcedure();
+        mysqlJDBCconnectionObject.transactionDemo();
 
     }
 
